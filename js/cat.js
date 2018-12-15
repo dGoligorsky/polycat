@@ -63,6 +63,22 @@ const mtlLoader = new THREE.MTLLoader()
 //     scene.add(earth)
 // })
 
+const addEye = function() {
+    const loader = new THREE.TextureLoader()
+    const texture = loader.load("assets/catseye.png")
+
+    const geometry = new THREE.SphereGeometry(12, 128, 128)
+    const material = new THREE.MeshLambertMaterial({
+        map: texture
+    })
+
+    const mesh = new THREE.Mesh(geometry, material)
+    mesh.rotateY(Math.PI)
+    
+    return mesh
+}
+
+
 let cat = null 
 let catGroup = new THREE.Group()
 scene.add(catGroup)
@@ -94,16 +110,26 @@ const addFloor = function() {
     const mesh = new THREE.Mesh(geometry, material)
     mesh.receiveShadow = true
 
-    scene.add(mesh)
     return mesh
 }
 
 const floor = addFloor()
 floor.position.y = -200
+scene.add(floor)
+
+const eye1 = addEye()
+eye1.position.set(-32, 140, -209)
+catGroup.add(eye1)
+
+const eye2= addEye()
+eye2.position.set(25, 140, -209)
+catGroup.add(eye2)
 
 let cameraAimX = 0
 let cameraAimY = 0
 let cameraAimZ = -900
+
+let fly = new THREE.Vector3(0,0,-900) // fly will be what the cat looks at
 
 
 const animate = function() {
@@ -112,7 +138,7 @@ const animate = function() {
 // }
 
     if (cat) {
-        catGroup.rotateY(0.01)
+    //     catGroup.rotateY(0.01)
     }
 
     const cameraDiffX = cameraAimX - camera.position.x
@@ -123,6 +149,12 @@ const animate = function() {
     camera.position.y = camera.position.y + cameraDiffY * 0.05
     camera.position.z = camera.position.z + cameraDiffZ * 0.05
 
+    // eye1.lookAt(camera.position)
+    // eye2.lookAt(camera.position)
+
+    eye1.lookAt(fly)
+    eye2.lookAt(fly)
+
     camera.lookAt(scene.position)
     renderer.render(scene, camera)
     requestAnimationFrame(animate)
@@ -130,8 +162,10 @@ const animate = function() {
 animate()
 
 document.addEventListener("mousemove", function(event) {
-    cameraAimX = event.pageX - (window.innerWidth / 2)
-    cameraAimY = event.pageY - (window.innerHeight / 2)
+    cameraAimX = (window.innerWidth / 2) - event.pageX
+    cameraAimY = (window.innerHeight / 2) - event.pageY
+
+    fly.set(cameraAimX * 1, cameraAimY * 2, -900)
 })
 
 document.addEventListener("wheel", function(event) {
