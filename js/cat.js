@@ -4,6 +4,7 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(window.devicePixelRatio)
 renderer.setClearColor(0xffffff)
+renderer.shadowMap.enabled = true
 
 const sectionTag = document.querySelector("section")
 sectionTag.appendChild(renderer.domElement)
@@ -18,7 +19,21 @@ scene.add(ambientLight)
 
 const directionalLight = new THREE.DirectionalLight(0xcccccc, 0.5)
 directionalLight.position.set(100, 200, -200)
+directionalLight.castShadow = true
+
+// all the crap you also need to specify so the light casts a shadow
+directionalLight.shadow.mapSize.width = 3000
+directionalLight.shadow.mapSize.height = 3000
+directionalLight.shadow.camera.near = 0.1
+directionalLight.shadow.camera.far = 10000
+directionalLight.shadow.camera.top = 1000
+directionalLight.shadow.camera.bottom = -1000
+directionalLight.shadow.camera.left = -1000
+directionalLight.shadow.camera.right = 1000
+
 scene.add(directionalLight)
+
+
 
 // using JS promises. Creating a new promise function that is passed the mtl and obj asset. On resolve (when the files are successfully loaded) the function returns the object. Now you can use the loadFiles() function and add on a .then() method that easily adds new obj/mtls to the scene.
 const loadFiles = function(mtlUrl, objUrl) {
@@ -63,6 +78,7 @@ loadFiles("assets/cat.mtl", "assets/cat.obj").then(function(obj) {
     })
     obj.traverse(child => {
         child.material = material
+        child.castShadow = true
     })
 
     cat = obj
@@ -76,6 +92,7 @@ const addFloor = function() {
     })
 
     const mesh = new THREE.Mesh(geometry, material)
+    mesh.receiveShadow = true
 
     scene.add(mesh)
     return mesh
@@ -86,6 +103,7 @@ floor.position.y = -200
 
 let cameraAimX = 0
 let cameraAimY = 0
+let cameraAimZ = -900
 
 
 const animate = function() {
@@ -99,9 +117,11 @@ const animate = function() {
 
     const cameraDiffX = cameraAimX - camera.position.x
     const cameraDiffY = cameraAimY - camera.position.y
+    const cameraDiffZ = cameraAimZ - camera.position.z
 
     camera.position.x = camera.position.x + cameraDiffX * 0.05
     camera.position.y = camera.position.y + cameraDiffY * 0.05
+    camera.position.z = camera.position.z + cameraDiffZ * 0.05
 
     camera.lookAt(scene.position)
     renderer.render(scene, camera)
@@ -112,6 +132,13 @@ animate()
 document.addEventListener("mousemove", function(event) {
     cameraAimX = event.pageX - (window.innerWidth / 2)
     cameraAimY = event.pageY - (window.innerHeight / 2)
+})
+
+document.addEventListener("wheel", function(event) {
+    cameraAimZ = cameraAimZ + event.deltaY
+    cameraAimZ = Math.max(-5000, cameraAimZ)
+    cameraAimZ = Math.min(700, cameraAimZ)
+    event.preventDefault()
 })
 
 window.addEventListener("resize", function() {
