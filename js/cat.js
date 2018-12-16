@@ -230,8 +230,26 @@ colorLinks.forEach(link => {
             }
         })
 
+        event.preventDefault()
+    })
 
+    link.addEventListener("touchend", function(event) {
+        let transition = {color: catColor}
+        const hex = this.style.backgroundColor
 
+        TweenMax.to(transition, 0.5, {
+            color: hex,
+            onUpdate: function() {
+                catColor = hex // this keeps setting the latest color to be the new color
+                const material = new THREE.MeshLambertMaterial({
+                    color: new THREE.Color(transition.color)
+                })
+        
+                cat.traverse(child => {
+                    child.material = material
+                })
+            }
+        })
 
         event.preventDefault()
     })

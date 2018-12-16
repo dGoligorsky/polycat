@@ -19,6 +19,7 @@ nav a {
     height: 30px;
     border-radius: 50%;
     margin: 0 5px 0 5px;
+    z-index: 3;
 }
 
 /* prevent inertial scroll on mobile */
