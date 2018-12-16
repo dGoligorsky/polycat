@@ -7,6 +7,20 @@ body {
     color: #333333
 }
 
+nav {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+}
+
+nav a {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin: 0 5px 0 5px;
+}
+
 /* prevent inertial scroll on mobile */
 html, body {
     position: fixed;

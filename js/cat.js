@@ -80,6 +80,7 @@ const addEye = function() {
 
 
 let cat = null 
+let catColor = "#333333"
 let catGroup = new THREE.Group()
 scene.add(catGroup)
 loadFiles("assets/cat.mtl", "assets/cat.obj").then(function(obj) {
@@ -90,7 +91,7 @@ loadFiles("assets/cat.mtl", "assets/cat.obj").then(function(obj) {
 
     // go through the model to update material b/c the cat mtl is messed up
     const material = new THREE.MeshLambertMaterial({
-        color: 0xff0000
+        color: new THREE.Color(catColor)
     })
     obj.traverse(child => {
         child.material = material
@@ -180,4 +181,55 @@ window.addEventListener("resize", function() {
     camera.updateProjectionMatrix()
 
     renderer.setSize(window.innerWidth, window.innerHeight)
+})
+
+
+// to change the color of the cat with the color links in the html
+// find the color links
+const colorLinks = document.querySelectorAll("nav a")
+// loop over each color link, add a click event
+colorLinks.forEach(link => {
+    link.addEventListener("click", function(event) {
+        let transition = {color: catColor}
+        const hex = this.style.backgroundColor
+
+        TweenMax.to(transition, 0.5, {
+            color: hex,
+            onUpdate: function() {
+                catColor = hex // this keeps setting the latest color to be the new color
+                const material = new THREE.MeshLambertMaterial({
+                    color: new THREE.Color(transition.color)
+                })
+        
+                cat.traverse(child => {
+                    child.material = material
+                })
+            }
+        })
+
+
+
+
+        event.preventDefault()
+    })
+})
+
+document.addEventListener("click", function(event) {
+    const mouse = new THREE.Vector2()
+    const raycaster = new THREE.Raycaster()
+
+    mouse.set(
+        (event.pageX / window.innerWidth) * 2 - 1,
+        (event.pageY / window.innerHeight) * -2 + 1
+    )
+
+    raycaster.setFromCamera(mouse, camera)
+
+    const intersections = raycaster.intersectObjects([eye1, eye2])
+
+    intersections.forEach(intersection => {
+        intersection.object.material = new THREE.MeshLambertMaterial({
+            color: 0xff00ff
+        })
+    })
 })
