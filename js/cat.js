@@ -196,7 +196,7 @@ function touch2Mouse(e) {
   mouseEvent.initMouseEvent(mouseEv, true, true, window, 1, theTouch.screenX, theTouch.screenY, theTouch.clientX, theTouch.clientY, false, false, false, false, 0, null);
   theTouch.target.dispatchEvent(mouseEvent);
 
-//   e.preventDefault();
+  e.preventDefault();
 }
 
 window.addEventListener("resize", function() {
